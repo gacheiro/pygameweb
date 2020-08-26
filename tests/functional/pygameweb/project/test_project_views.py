@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 import mock
 
@@ -288,7 +290,7 @@ def test_tags(project_client, session, project, project2):
     assert project_client.get('/tags').status_code == 200
 
 
-def test_project_new(project_client, session, user):
+def test_project_new(config, project_client, session, user):
     """ adds a new project for the user.
     """
 
@@ -327,8 +329,8 @@ def test_project_new(project_client, session, user):
                    .query(Project)
                    .filter(Project.title == 'title')
                    .first())
-        assert (save_image.call_args[0][1] ==
-                f'frontend/www/shots/{project.id}.png')
+        assert (str(Path(config.WWW) / f'shots/{project.id}.png') ==
+                save_image.call_args[0][1])
         resp = project_client.get(f'/project/{project.id}/')
         assert project.description.encode('utf8') in resp.data
 
@@ -357,8 +359,8 @@ def test_project_new(project_client, session, user):
                    .query(Project)
                    .filter(Project.title == 'titlechanged')
                    .first())
-        assert (save_image.call_args[0][1] ==
-                f'frontend/www/shots/{project.id}.png')
+        assert (str(Path(config.WWW) / f'shots/{project.id}.png') ==
+                save_image.call_args[0][1])
 
     data = dict(title='titlechangedagain',
                 tags='tag1, tag2, tag3', summary='summary',
